@@ -11,8 +11,29 @@ import json
 import requests
 from datetime import datetime
 from typing import Dict, List
+import os
+from pathlib import Path
 
-app = Flask(__name__)
+# 获取项目根目录
+if __name__ == '__main__':
+    # 开发环境
+    project_root = Path(__file__).parent
+else:
+    # Vercel环境
+    project_root = Path(__file__).parent.parent
+
+# 创建Flask应用，指定模板和静态文件路径
+app = Flask(__name__, 
+           template_folder=str(project_root / 'templates'),
+           static_folder=str(project_root / 'static'))
+
+# Vercel环境配置
+if os.environ.get('VERCEL'):
+    app.config['TEMPLATES_AUTO_RELOAD'] = False
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1年缓存
+else:
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 class NovelPromotionWebGenerator:
     def __init__(self):
